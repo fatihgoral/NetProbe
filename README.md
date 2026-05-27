@@ -97,3 +97,42 @@ pip install -r requirements.txt
 ```
 
 ---
+
+## 💻 Kullanım
+
+### Sunucuyu Başlat
+```bash
+python src/server.py --port 5000
+```
+
+**Seçenekler:**
+- `--port`: Dinlenecek port (varsayılan: 5000)
+- `--output-dir`: Alınan dosyaların kaydedileceği dizin (varsayılan: ./received_files)
+
+### İstemciden Dosya Gönder
+```bash
+python src/client.py --host localhost --port 5000 --file data/test_10mb.bin
+```
+
+**Seçenekler:**
+- `--host`: Sunucu adresi (varsayılan: localhost)
+- `--port`: Sunucu portu (varsayılan: 5000)
+- `--file`: Gönderilecek dosya yolu
+- `--packet-size`: Paket boyutu (varsayılan: 1024 bayt)
+- `--timeout`: Timeout süresi (varsayılan: 2.0 saniye)
+
+### Örnek Transfer
+```bash
+# Terminal 1: Sunucuyu başlat
+python src/server.py --port 5000
+
+# Terminal 2: Dosya gönder
+python src/client.py --host localhost --port 5000 --file data/test_10mb.bin
+
+# Sonuç: 
+# - Dosya alındı ve verify edildi
+# - Log: logs/transfer_log.csv
+# - Metrikler: results/metrics.json
+```
+
+---
