@@ -25,3 +25,44 @@ konularında teorik ve pratik bilgi kazanacaklar.
 ✅ Performans metrikleri hesaplama (Throughput, Goodput, Packet Loss, RTT)  
 ✅ 4 deneysel senaryo ile sistem evaluasyonu  
 ✅ Teknik rapor ve sunum hazırlama  
+## 📁 Proje Yapısı
+
+```
+netprobe/
+├── src/                          # Kaynak kodlar
+│   ├── client.py                 # İstemci uygulaması
+│   ├── server.py                 # Sunucu uygulaması
+│   ├── protocol.py               # Paket protokolü ve sınıfları
+│   ├── logger.py                 # Olay loglama sistemi
+│   └── metrics.py                # Performans metrikleri hesaplama
+│
+├── tests/                        # Test dosyaları
+│   ├── test_protocol.py          # Protokol unit testleri
+│   └── test_transfer.py          # Transfer integration testleri
+│
+├── analysis/                     # Veri analizi ve görselleştirme
+│   ├── analyze.py                # CSV analiz ve istatistik
+│   └── plots.py                  # Grafik oluşturma (matplotlib)
+│
+├── experiments/                  # Deneysel senaryolar
+│   ├── scenario1_packetsize.py   # Senaryo 1: Paket boyutu etkisi
+│   ├── scenario2_timeout.py      # Senaryo 2: Timeout etkisi
+│   ├── scenario3_loss.py         # Senaryo 3: Paket kaybı etkisi
+│   └── scenario4_filesize.py     # Senaryo 4: Dosya boyutu etkisi
+│
+├── logs/                         # Deney sonuçları ve loglar
+│   └── transfer_log.csv          # Transfer olayları logu
+│
+├── reports/                      # Raporlar
+│   └── NetProbe_TeknikRapor.pdf  # Teknik rapor (8-12 sayfa)
+│
+├── data/                         # Test dosyaları
+│   ├── test_1mb.bin              # 1MB test dosyası
+│   ├── test_5mb.bin              # 5MB test dosyası
+│   ├── test_10mb.bin             # 10MB test dosyası
+│   └── test_50mb.bin             # 50MB test dosyası
+│
+├── requirements.txt              # Python bağımlılıkları
+├── README.md                     # Bu dosya
+└── .gitignore                    # Git ignore kuralları
+```
