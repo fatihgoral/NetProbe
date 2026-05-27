@@ -66,3 +66,34 @@ netprobe/
 ├── README.md                     # Bu dosya
 └── .gitignore                    # Git ignore kuralları
 ```
+
+## 🚀 Kurulum ve Başlatma
+
+### Gereksinimler
+- Python 3.9 veya daha yeni
+- pip paket yöneticisi
+- Git (optional)
+
+### Adım 1: Depoyu klonla
+```bash
+git clone https://github.com/fatihgoral/netprobe.git
+cd netprobe
+```
+
+### Adım 2: Sanal ortam oluştur
+```bash
+# Windows
+python -m venv venv
+venv\Scripts\activate
+
+# macOS / Linux
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### Adım 3: Bağımlılıkları yükle
+```bash
+pip install -r requirements.txt
+```
+
+---
