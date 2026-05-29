@@ -14,7 +14,7 @@ NetProbe, UDP üzerinde **stop-and-wait** yaklaşımı temelli güvenilir dosya 
 
 Bu projenin temel amacı yalnızca çalışan bir dosya aktarım sistemi geliştirmek değil, aynı zamanda geliştirilen güvenilirlik mekanizmasının farklı ağ koşulları altındaki davranışını sayısal verilerle analiz etmektir. Paket boyutu, timeout süresi, kayıp oranı ve dosya boyutu gibi parametrelerin performans üzerindeki etkileri deneysel olarak incelenmiştir.
 
-![Genel Performans Özeti](reports/graphics/summary_performance_metrics.png)
+![Genel Performans Özeti](./reports/graphics/summary_performance_metrics.png)
 
 
 ---
