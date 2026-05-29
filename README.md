@@ -16,6 +16,7 @@ Bu projenin temel amacı yalnızca çalışan bir dosya aktarım sistemi gelişt
 
 ![Genel Performans Özeti](reports/graphics/summary_performance_metrics.png)
 
+
 ---
 
 # ✨ Temel Özellikler ve Güvenilirlik Mekanizmaları
