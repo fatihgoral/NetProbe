@@ -10,45 +10,43 @@
 
 # 📋 Proje Özeti
 
-NetProbe, UDP üzerinde **stop-and-wait** yaklaşımı temelli güvenilir dosya aktarımı sağlayan; eş zamanlı olarak trafik kayıtlarını üreten ve sistem performansını farklı koşullar altında ölçen tam kapsamlı bir ağ platformudur.
+NetProbe, UDP üzerinde **stop-and-wait** yaklaşımı temelli güvenilir dosya aktarımı sağlayan; eş zamanlı olarak trafik kayıtlarını üreten ve sistem performansını farklı koşullar altında ölçen kapsamlı bir ağ platformudur.
 
 Bu projenin temel amacı yalnızca çalışan bir dosya aktarım sistemi geliştirmek değil, aynı zamanda geliştirilen güvenilirlik mekanizmasının farklı ağ koşulları altındaki davranışını sayısal verilerle analiz etmektir. Paket boyutu, timeout süresi, kayıp oranı ve dosya boyutu gibi parametrelerin performans üzerindeki etkileri deneysel olarak incelenmiştir.
 
-![NetProbe Genel Performans Özeti](reports/graphics/summary_performance_metrics.png)
+![Genel Performans Özeti](reports/graphics/summary_performance_metrics.png)
 
 ---
 
 # ✨ Temel Özellikler ve Güvenilirlik Mekanizmaları
 
-UDP'nin bağlantısız ve güvenilmez yapısını uygulama katmanında çözmek amacıyla aşağıdaki mekanizmalar geliştirilmiştir:
+UDP’nin bağlantısız ve güvenilmez yapısını uygulama katmanında çözmek amacıyla aşağıdaki mekanizmalar geliştirilmiştir:
 
 * **Sequence Number:**
-  Her veri paketi 32-bit benzersiz sıra numarası taşır. Böylece paket sıralaması korunur ve duplicate paketler tespit edilir.
+  Her veri paketi benzersiz sıra numarası taşır. Böylece paket sıralaması korunur ve duplicate paketler tespit edilir.
 
 * **ACK (Stop-and-Wait):**
   Gönderilen her veri paketi için alıcıdan onay (ACK) beklenir.
 
 * **Timeout & Retransmission:**
-  Beklenen ACK varsayılan olarak 2 saniye içinde gelmezse paket yeniden gönderilir. Maksimum yeniden deneme sayısı 5’tir.
+  Beklenen ACK belirlenen süre içerisinde gelmezse paket yeniden gönderilir.
 
 * **Checksum Doğrulaması:**
-  Paket başlığında SHA-256 hash değerinin ilk 8 baytı kullanılarak checksum doğrulaması yapılır.
+  Paket başlığında SHA-256 tabanlı checksum doğrulaması yapılır.
 
 * **Uçtan Uca Bütünlük Kontrolü:**
-  Dosyanın SHA-256 özeti aktarım öncesinde gönderilir ve aktarım sonunda tekrar hesaplanarak dosya bütünlüğü doğrulanır.
+  Dosyanın SHA-256 özeti aktarım sonunda tekrar hesaplanarak veri bütünlüğü doğrulanır.
 
-* **Detaylı Loglama Sistemi:**
-  Tüm ağ olayları milisaniye hassasiyetli zaman damgalarıyla kaydedilir. Paket gönderimi, ACK alımı, timeout ve retransmission olayları detaylı olarak loglanır.
+* **Detaylı Olay Loglama:**
+  Tüm ağ olayları milisaniye hassasiyetli zaman damgalarıyla kayıt altına alınır.
 
 ---
 
 # 🏗️ Sistem Mimarisi ve Protokol
 
-NetProbe; istemci, sunucu, protokol katmanı, log altyapısı ve yapay kayıp simülatöründen oluşan modüler bir yapıya sahiptir.
+NetProbe; istemci, sunucu, protokol katmanı, log altyapısı ve kayıp simülatöründen oluşan modüler bir yapıya sahiptir.
 
 ## DATA Paketi (0x01)
-
-Maksimum paket boyutu yaklaşık 1019 bayttır.
 
 ```text
 ┌─────────────┬──────────┬─────────────┬──────────────┬───────────┬─────────────┐
@@ -57,13 +55,11 @@ Maksimum paket boyutu yaklaşık 1019 bayttır.
 └─────────────┴──────────┴─────────────┴──────────────┴───────────┴─────────────┘
 ```
 
-Tam dolu bir paket yaklaşık 1019 bayt boyutundadır. Bu değer Ethernet MTU sınırı olan 1500 baytın altında tutulduğu için IP fragmentation riski azaltılmıştır.
+Tam dolu bir paket yaklaşık 1019 bayt boyutundadır ve Ethernet MTU sınırı altında kalacak şekilde tasarlanmıştır.
 
 ---
 
 ## ACK Paketi (0x02)
-
-ACK paketi toplam 13 bayttır.
 
 ```text
 ┌─────────────┬──────────┬───────────┐
@@ -76,33 +72,30 @@ ACK paketi toplam 13 bayttır.
 
 # 🧪 Deneysel Senaryolar ve Performans Analizi
 
-NetProbe içerisinde farklı ağ koşullarını test eden deney senaryoları bulunmaktadır. Throughput, Goodput, RTT, Completion Time ve Packet Loss gibi metrikler otomatik olarak hesaplanmaktadır.
+NetProbe sistemi farklı ağ koşullarını test eden deney senaryoları içermektedir. Throughput, Goodput, RTT, Completion Time ve Packet Loss gibi metrikler otomatik olarak hesaplanmaktadır.
 
 ---
 
-## 1️⃣ Senaryo 1: Paket Boyutu Etkisi
+# 1️⃣ Senaryo 1: Paket Boyutu Etkisi
 
-Paket boyutlarının (256B, 512B, 1024B, 2048B) performans üzerindeki etkisi incelenmiştir.
+Farklı paket boyutlarının sistem performansına etkisi incelenmiştir.
+
+![Paket Boyutu Performans Grafiği](reports/graphics/scenario1_packet_size_effects.png)
 
 ### Bulgular
 
-* Paket boyutu arttıkça throughput değeri belirgin şekilde yükselmiştir.
+* Paket boyutu arttıkça throughput değeri belirgin şekilde artmıştır.
 * Küçük paketlerde protokol overhead maliyeti daha fazla hissedilmiştir.
 * 1024 byte paket boyutu performans açısından en verimli değer olarak gözlemlenmiştir.
-* 2048 byte paketlerde stop-and-wait yapısının etkisiyle işlem süresi tekrar artış göstermiştir.
+* Daha büyük paketlerde işlem yükü arttığı için tamamlanma süresi tekrar yükselme eğilimi göstermiştir.
 
 ---
 
-## 2️⃣ Senaryo 2: Timeout Değeri Etkisi
+# 2️⃣ Senaryo 2: Timeout Değeri Etkisi
 
-%5 paket kaybı altında timeout değerlerinin performansa etkisi ölçülmüştür.
+Timeout süresinin performans üzerindeki etkisi ölçülmüştür.
 
-Test edilen timeout değerleri:
-
-* 0.5 saniye
-* 1.0 saniye
-* 2.0 saniye
-* 5.0 saniye
+![Timeout Performans Grafiği](reports/graphics/scenario2_timeout_effects.png)
 
 ### Bulgular
 
@@ -113,36 +106,26 @@ Test edilen timeout değerleri:
 
 ---
 
-## 3️⃣ Senaryo 3: Simüle Paket Kaybı Etkisi
+# 3️⃣ Senaryo 3: Simüle Paket Kaybı Etkisi
 
-Sunucu tarafında ACK paketleri düşürülerek yapay paket kaybı oluşturulmuştur.
+ACK paketleri düşürülerek yapay paket kaybı oluşturulmuştur.
 
-Test edilen kayıp oranları:
-
-* %0
-* %5
-* %10
-* %20
+![Paket Kaybı Performans Grafiği](reports/graphics/scenario3_loss_rate_effects.png)
 
 ### Bulgular
 
 * Paket kaybı arttıkça stop-and-wait protokolünün performansı ciddi şekilde düşmüştür.
-* %20 kayıp oranında throughput ve goodput değerleri dramatik şekilde azalmıştır.
+* Yüksek kayıp oranlarında throughput ve goodput dramatik şekilde azalmıştır.
 * Tamamlanma süresi doğrusal değil, üstel şekilde büyüme göstermiştir.
 * Stop-and-wait yaklaşımının paket kayıplarına karşı oldukça hassas olduğu gözlemlenmiştir.
 
 ---
 
-## 4️⃣ Senaryo 4: Dosya Boyutu Ölçeklenebilirliği
+# 4️⃣ Senaryo 4: Dosya Boyutu Ölçeklenebilirliği
 
-Farklı dosya boyutlarının sistem performansına etkisi analiz edilmiştir.
+Farklı dosya boyutlarının sistem davranışına etkisi incelenmiştir.
 
-Test edilen dosya boyutları:
-
-* 1 MB
-* 5 MB
-* 10 MB
-* 50 MB
+![Dosya Boyutu Ölçeklenebilirlik Grafiği](reports/graphics/scenario4_file_size_effects.png)
 
 ### Bulgular
 
@@ -152,8 +135,8 @@ Test edilen dosya boyutları:
 
   * Disk I/O maliyetleri
   * Python GIL etkisi
-  * Artan RTT bekleme süreleri
-  * Yükselen paket sayısıdır.
+  * RTT bekleme süreleri
+  * Artan paket sayısıdır.
 
 ---
 
@@ -198,7 +181,7 @@ python experiments/scenario3_loss.py
 python experiments/scenario4_filesize.py
 ```
 
-Deney sonuçları CSV formatında `data/` klasörüne kaydedilir ve oluşturulan grafikler `plots/` klasörüne yazılır.
+Sonuçlar `data/` klasörüne CSV olarak kaydedilir ve grafikler `reports/graphics/` klasöründe oluşturulur.
 
 ---
 
