@@ -1,323 +1,215 @@
-# NetProbe: UDP Tabanlı Güvenilir Dosya Aktarımı, Trafik İzleme ve Ağ Performans Analiz Platformu
+# 🌐 NetProbe
 
-**Bursa Teknik Üniversitesi | Bilgisayar Mühendisliği Bölümü**  
+**UDP Tabanlı Güvenilir Dosya Aktarımı, Trafik İzleme ve Ağ Performans Analiz Platformu**
+
+**Bursa Teknik Üniversitesi | Bilgisayar Mühendisliği Bölümü**
 **Bilgisayar Ağları Dersi - Dönem Projesi**
 
----
-
-## 📋 Proje Özeti
-
-NetProbe, UDP üzerinde çalışan **güvenilir dosya aktarım sistemi** geliştiren bir ağ uygulamasıdır. Proje kapsamında öğrenciler;
-- UDP tabanlı istemci-sunucu mimarisi
-- Uygulama katmanında güvenilirlik mekanizmaları (ACK, Sequence Number, Timeout, Retransmission)
-- Trafik izleme ve olay kayıt sistemi
-- Performans analizi ve deneysel evaluasyon
-
-konularında teorik ve pratik bilgi kazanacaklar.
+**Geliştirici:** Muhammed Fatih Göral
 
 ---
 
-## 🎯 Proje Hedefleri
+# 📋 Proje Özeti
 
-✅ UDP tabanlı güvenilir dosya aktarımı  
-✅ Sequence number, ACK, timeout ve retransmission mekanizmaları  
-✅ Trafik izleme ve detaylı loglama  
-✅ Performans metrikleri hesaplama (Throughput, Goodput, Packet Loss, RTT)  
-✅ 4 deneysel senaryo ile sistem evaluasyonu  
-✅ Teknik rapor ve sunum hazırlama  
-## 📁 Proje Yapısı
+NetProbe, UDP üzerinde **stop-and-wait** yaklaşımı temelli güvenilir dosya aktarımı sağlayan; eş zamanlı olarak trafik kayıtlarını üreten ve sistem performansını farklı koşullar altında ölçen kapsamlı bir ağ platformudur.
 
-```
-netprobe/
-├── src/                          # Kaynak kodlar
-│   ├── client.py                 # İstemci uygulaması
-│   ├── server.py                 # Sunucu uygulaması
-│   ├── protocol.py               # Paket protokolü ve sınıfları
-│   ├── logger.py                 # Olay loglama sistemi
-│   └── metrics.py                # Performans metrikleri hesaplama
-│
-├── tests/                        # Test dosyaları
-│   ├── test_protocol.py          # Protokol unit testleri
-│   └── test_transfer.py          # Transfer integration testleri
-│
-├── analysis/                     # Veri analizi ve görselleştirme
-│   ├── analyze.py                # CSV analiz ve istatistik
-│   └── plots.py                  # Grafik oluşturma (matplotlib)
-│
-├── experiments/                  # Deneysel senaryolar
-│   ├── scenario1_packetsize.py   # Senaryo 1: Paket boyutu etkisi
-│   ├── scenario2_timeout.py      # Senaryo 2: Timeout etkisi
-│   ├── scenario3_loss.py         # Senaryo 3: Paket kaybı etkisi
-│   └── scenario4_filesize.py     # Senaryo 4: Dosya boyutu etkisi
-│
-├── logs/                         # Deney sonuçları ve loglar
-│   └── transfer_log.csv          # Transfer olayları logu
-│
-├── reports/                      # Raporlar
-│   └── NetProbe_TeknikRapor.pdf  # Teknik rapor (8-12 sayfa)
-│
-├── data/                         # Test dosyaları
-│   ├── test_1mb.bin              # 1MB test dosyası
-│   ├── test_5mb.bin              # 5MB test dosyası
-│   ├── test_10mb.bin             # 10MB test dosyası
-│   └── test_50mb.bin             # 50MB test dosyası
-│
-├── requirements.txt              # Python bağımlılıkları
-├── README.md                     # Bu dosya
-└── .gitignore                    # Git ignore kuralları
+Bu projenin temel amacı yalnızca çalışan bir dosya aktarım sistemi geliştirmek değil, aynı zamanda geliştirilen güvenilirlik mekanizmasının farklı ağ koşulları altındaki davranışını sayısal verilerle analiz etmektir. Paket boyutu, timeout süresi, kayıp oranı ve dosya boyutu gibi parametrelerin performans üzerindeki etkileri deneysel olarak incelenmiştir.
+
+![Genel Performans Özeti](./reports/graphics/summary_performance_metrics.png)
+
+
+---
+
+# ✨ Temel Özellikler ve Güvenilirlik Mekanizmaları
+
+UDP’nin bağlantısız ve güvenilmez yapısını uygulama katmanında çözmek amacıyla aşağıdaki mekanizmalar geliştirilmiştir:
+
+* **Sequence Number:**
+  Her veri paketi benzersiz sıra numarası taşır. Böylece paket sıralaması korunur ve duplicate paketler tespit edilir.
+
+* **ACK (Stop-and-Wait):**
+  Gönderilen her veri paketi için alıcıdan onay (ACK) beklenir.
+
+* **Timeout & Retransmission:**
+  Beklenen ACK belirlenen süre içerisinde gelmezse paket yeniden gönderilir.
+
+* **Checksum Doğrulaması:**
+  Paket başlığında SHA-256 tabanlı checksum doğrulaması yapılır.
+
+* **Uçtan Uca Bütünlük Kontrolü:**
+  Dosyanın SHA-256 özeti aktarım sonunda tekrar hesaplanarak veri bütünlüğü doğrulanır.
+
+* **Detaylı Olay Loglama:**
+  Tüm ağ olayları milisaniye hassasiyetli zaman damgalarıyla kayıt altına alınır.
+
+---
+
+# 🏗️ Sistem Mimarisi ve Protokol
+
+NetProbe; istemci, sunucu, protokol katmanı, log altyapısı ve kayıp simülatöründen oluşan modüler bir yapıya sahiptir.
+
+## DATA Paketi (0x01)
+
+```text
+┌─────────────┬──────────┬─────────────┬──────────────┬───────────┬─────────────┐
+│Packet Type  │ Seq Num  │Total Pkts   │Payload Len   │Checksum   │ Payload     │
+│ 1 byte      │ 4 bytes  │ 4 bytes     │ 2 bytes      │ 8 bytes   │ max 1000B   │
+└─────────────┴──────────┴─────────────┴──────────────┴───────────┴─────────────┘
 ```
 
-## 🚀 Kurulum ve Başlatma
+Tam dolu bir paket yaklaşık 1019 bayt boyutundadır ve Ethernet MTU sınırı altında kalacak şekilde tasarlanmıştır.
 
-### Gereksinimler
-- Python 3.9 veya daha yeni
-- pip paket yöneticisi
-- Git (optional)
+---
 
-### Adım 1: Depoyu klonla
-```bash
-git clone https://github.com/fatihgoral/netprobe.git
-cd netprobe
+## ACK Paketi (0x02)
+
+```text
+┌─────────────┬──────────┬───────────┐
+│Packet Type  │ ACK Num  │ Checksum  │
+│ 1 byte      │ 4 bytes  │ 8 bytes   │
+└─────────────┴──────────┴───────────┘
 ```
 
-### Adım 2: Sanal ortam oluştur
-```bash
-# Windows
-python -m venv venv
-venv\Scripts\activate
+---
 
-# macOS / Linux
-python3 -m venv venv
-source venv/bin/activate
-```
+# 🧪 Deneysel Senaryolar ve Performans Analizi
 
-### Adım 3: Bağımlılıkları yükle
+NetProbe sistemi farklı ağ koşullarını test eden deney senaryoları içermektedir. Throughput, Goodput, RTT, Completion Time ve Packet Loss gibi metrikler otomatik olarak hesaplanmaktadır.
+
+---
+
+# 1️⃣ Senaryo 1: Paket Boyutu Etkisi
+
+Farklı paket boyutlarının sistem performansına etkisi incelenmiştir.
+
+![Paket Boyutu Performans Grafiği](reports/graphics/scenario1_packet_size_effects.png)
+
+### Bulgular
+
+* Paket boyutu arttıkça throughput değeri belirgin şekilde artmıştır.
+* Küçük paketlerde protokol overhead maliyeti daha fazla hissedilmiştir.
+* 1024 byte paket boyutu performans açısından en verimli değer olarak gözlemlenmiştir.
+* Daha büyük paketlerde işlem yükü arttığı için tamamlanma süresi tekrar yükselme eğilimi göstermiştir.
+
+---
+
+# 2️⃣ Senaryo 2: Timeout Değeri Etkisi
+
+Timeout süresinin performans üzerindeki etkisi ölçülmüştür.
+
+![Timeout Performans Grafiği](reports/graphics/scenario2_timeout_effects.png)
+
+### Bulgular
+
+* Timeout süresi arttıkça throughput ciddi şekilde düşmüştür.
+* Çok büyük timeout değerleri aktarım süresini gereksiz şekilde uzatmıştır.
+* Çok küçük timeout değerleri ise gereksiz retransmission oluşturmuştur.
+* En verimli timeout değeri, ortalama RTT’nin küçük bir katı olacak şekilde belirlenmelidir.
+
+---
+
+# 3️⃣ Senaryo 3: Simüle Paket Kaybı Etkisi
+
+ACK paketleri düşürülerek yapay paket kaybı oluşturulmuştur.
+
+![Paket Kaybı Performans Grafiği](reports/graphics/scenario3_loss_rate_effects.png)
+
+### Bulgular
+
+* Paket kaybı arttıkça stop-and-wait protokolünün performansı ciddi şekilde düşmüştür.
+* Yüksek kayıp oranlarında throughput ve goodput dramatik şekilde azalmıştır.
+* Tamamlanma süresi doğrusal değil, üstel şekilde büyüme göstermiştir.
+* Stop-and-wait yaklaşımının paket kayıplarına karşı oldukça hassas olduğu gözlemlenmiştir.
+
+---
+
+# 4️⃣ Senaryo 4: Dosya Boyutu Ölçeklenebilirliği
+
+Farklı dosya boyutlarının sistem davranışına etkisi incelenmiştir.
+
+![Dosya Boyutu Ölçeklenebilirlik Grafiği](reports/graphics/scenario4_file_size_effects.png)
+
+### Bulgular
+
+* Tamamlanma süresi dosya boyutuyla neredeyse doğrusal şekilde artmıştır.
+* Büyük dosyalarda throughput değerinde hafif düşüş gözlemlenmiştir.
+* Bu düşüşün temel nedenleri:
+
+  * Disk I/O maliyetleri
+  * Python GIL etkisi
+  * RTT bekleme süreleri
+  * Artan paket sayısıdır.
+
+---
+
+# 🚀 Kurulum ve Kullanım
+
+## Gereksinimler
+
+* Python 3.11 veya daha yeni sürüm
+
+Gerekli kütüphaneleri yüklemek için:
+
 ```bash
 pip install -r requirements.txt
 ```
 
+Not: Core sistem yalnızca Python standart kütüphanelerini kullanmaktadır. Pandas ve matplotlib gibi ek kütüphaneler yalnızca analiz ve grafik üretimi için gereklidir.
+
 ---
 
-## 💻 Kullanım
+## 1. Sunucuyu Başlatma
 
-### Sunucuyu Başlat
 ```bash
-python src/server.py --port 5000
+python src/server.py --port 5000 --output-dir ./received_files
 ```
 
-**Seçenekler:**
-- `--port`: Dinlenecek port (varsayılan: 5000)
-- `--output-dir`: Alınan dosyaların kaydedileceği dizin (varsayılan: ./received_files)
+---
 
-### İstemciden Dosya Gönder
+## 2. İstemci ile Dosya Gönderme
+
 ```bash
-python src/client.py --host localhost --port 5000 --file data/test_10mb.bin
+python src/client.py --host localhost --port 5000 --file data/test_10mb.bin --packet-size 1024 --timeout 2.0
 ```
 
-**Seçenekler:**
-- `--host`: Sunucu adresi (varsayılan: localhost)
-- `--port`: Sunucu portu (varsayılan: 5000)
-- `--file`: Gönderilecek dosya yolu
-- `--packet-size`: Paket boyutu (varsayılan: 1024 bayt)
-- `--timeout`: Timeout süresi (varsayılan: 2.0 saniye)
+---
 
-### Örnek Transfer
-```bash
-# Terminal 1: Sunucuyu başlat
-python src/server.py --port 5000
+## 3. Deney Senaryolarını Çalıştırma
 
-# Terminal 2: Dosya gönder
-python src/client.py --host localhost --port 5000 --file data/test_10mb.bin
-
-# Sonuç: 
-# - Dosya alındı ve verify edildi
-# - Log: logs/transfer_log.csv
-# - Metrikler: results/metrics.json
-```
-## 🧪 Deneysel Senaryolar
-
-### Senaryo 1: Paket Boyutu Etkisi
 ```bash
 python experiments/scenario1_packetsize.py
-# Çıktı: data/scenario1_results.csv, plots/scenario1_*.png
-```
-**Test edilen paket boyutları:** 256B, 512B, 1024B, 2048B  
-**Metrik:** Throughput vs Goodput
-
-### Senaryo 2: Timeout Değeri Etkisi
-```bash
 python experiments/scenario2_timeout.py
-# Çıktı: data/scenario2_results.csv, plots/scenario2_*.png
-```
-**Test edilen timeout:** 0.5s, 1s, 2s, 5s  
-**Metrik:** Retransmission Rate vs Completion Time
-
-### Senaryo 3: Simüle Paket Kaybı
-```bash
 python experiments/scenario3_loss.py
-# Çıktı: data/scenario3_results.csv, plots/scenario3_*.png
-```
-**Test edilen kayıp oranı:** %0, %5, %10, %20  
-**Metrik:** Goodput vs Packet Loss Rate
-
-### Senaryo 4: Dosya Boyutu Etkisi
-```bash
 python experiments/scenario4_filesize.py
-# Çıktı: data/scenario4_results.csv, plots/scenario4_*.png
-```
-**Test edilen dosya boyutu:** 1MB, 5MB, 10MB, 50MB  
-**Metrik:** Completion Time vs File Size
-
----
-
-## 📊 Sonuç Analizi
-
-Tüm deney sonuçları sonra analiz edilir:
-```bash
-python analysis/analyze.py
-python analysis/plots.py
 ```
 
-Çıktılar:
-- `results/metrics_summary.csv`: Özet istatistikler
-- `plots/`: Tüm grafikler
-- `analysis/report_data.json`: Detaylı analizler
+Sonuçlar `data/` klasörüne CSV olarak kaydedilir ve grafikler `reports/graphics/` klasöründe oluşturulur.
 
 ---
 
-## 📄 Teknik Rapor
+# 🔮 Sonuç ve Gelecek Çalışmalar
 
-Detaylı teknik rapor (8-12 sayfa):
-- **Dosya:** `reports/NetProbe_TeknikRapor.pdf`
-- **İçerik:**
-  - Giriş ve problem tanımı
-  - Sistem mimarisi ve protokol tasarımı
-  - Uygulama detayları
-  - Deney ortamı ve metodoloji
-  - Performans metrikleri ve sonuçlar
-  - Tartışma ve gelecek çalışmalar
+NetProbe, UDP üzerinde güvenilir veri aktarımını başarıyla gerçekleştirmiş ve stop-and-wait yaklaşımının güçlü ve zayıf yönlerini deneysel sonuçlarla ortaya koymuştur.
 
----
+Gerçekleştirilen testler sonucunda:
 
-## 📚 Protokol Spesifikasyonu
+* Paket kaybının performansı ciddi şekilde etkilediği,
+* Timeout ayarının kritik öneme sahip olduğu,
+* Paket boyutunun throughput üzerinde doğrudan etkili olduğu,
+* Büyük dosyalarda doğrusal ölçeklenebilirliğin büyük ölçüde korunduğu gözlemlenmiştir.
 
-### Paket Formatı
+Gelecek çalışmalarda aşağıdaki geliştirmelerin yapılması planlanmaktadır:
 
-**Veri Paketi (DATA - 0x01):**
-```
-┌─────────────┬──────────┬─────────────┬──────────────┬───────────┬─────────────┐
-│Packet Type  │ Seq Num  │Total Pkts   │Payload Len   │Checksum   │ Payload     │
-│ 1 byte      │ 4 bytes  │ 4 bytes     │ 2 bytes      │ 8 bytes   │ max 1000B   │
-├─────────────┼──────────┼─────────────┼──────────────┼───────────┼─────────────┤
-│   0x01      │0-65535   │ n           │ 0-1000       │ SHA-256   │ [data]      │
-└─────────────┴──────────┴─────────────┴──────────────┴───────────┴─────────────┘
-```
-
-**ACK Paketi (ACK - 0x02):**
-```
-┌─────────────┬──────────┬───────────┐
-│Packet Type  │ ACK Num  │ Checksum  │
-│ 1 byte      │ 4 bytes  │ 8 bytes   │
-├─────────────┼──────────┼───────────┤
-│   0x02      │0-65535   │ SHA-256   │
-└─────────────┴──────────┴───────────┘
-```
-
-### Mekanizmalar
-
-- **Sequence Number:** Paketlerin sıralanması ve duplicate tespiti
-- **ACK (Acknowledgment):** Alıcıdan gönderici'ye başarılı alındı sinyali
-- **Timeout:** 2 saniye (configurable), ACK gelmazse retransmit
-- **Retransmission:** Max 5 deneme, sonra başarısız
-- **Checksum:** SHA-256 ile veri bütünlüğü doğrulaması
+* Sliding Window tabanlı Go-Back-N veya Selective Repeat yapısına geçilmesi
+* Adaptif RTO hesaplaması için Jacobson–Karels algoritmasının kullanılması
+* Çoklu istemci desteği
+* Uçtan uca şifreleme mekanizması eklenmesi
+* Gerçek zamanlı trafik izleme paneli geliştirilmesi
 
 ---
 
-## 📈 Performans Metrikleri
+# 📄 Lisans
 
-| Metrik | Formül | Açıklama |
-|--------|--------|----------|
-| **Throughput** | Total Bytes / Time | Gönderilen tüm veriler / toplam süre |
-| **Goodput** | Success Bytes / Time | Sadece başarılı veriler / toplam süre |
-| **Packet Loss Rate** | (Sent - Success) / Sent × 100 | Kayıp oranı (%) |
-| **Retrans Rate** | Retransmitted / Total × 100 | Yeniden gönderilen oranı (%) |
-| **Completion Time** | End - Start | Toplam transfer süresi |
-| **Avg RTT** | Σ(ACK Time - Send Time) / n | Ortalama Round Trip Time |
+Bu proje, Bursa Teknik Üniversitesi Bilgisayar Ağları dersi kapsamında geliştirilmiş akademik bir çalışmadır.
 
----
-
-## 🔧 Teknoloji Yığını
-
-- **Dil:** Python 3.9+
-- **Network:** `socket` (UDP)
-- **Concurrency:** `threading`
-- **Data Analysis:** `pandas`, `numpy`
-- **Visualization:** `matplotlib`, `seaborn`
-- **Data Format:** CSV, JSON
-
----
-
-## 📝 Grup Bilgileri
-
-**Grup Üyeleri:**
-- (Üye 1)
-- (Üye 2)
-- (Üye 3) *(optional)*
-
-**Görev Dağılımı:**
-- **Üye 1:** Protocol ve Socket Programming
-- **Üye 2:** Logging ve Metrics
-- **Üye 3:** Experiments ve Analysis
-
----
-
-## 🐛 Sorun Giderme
-
-### Hata: "Address already in use"
-```bash
-# Farklı port kullan
-python src/server.py --port 5001
-```
-
-### Hata: "Connection refused"
-```bash
-# Sunucunun çalıştığını kontrol et
-# Doğru host ve port kullanıyor musun?
-python src/client.py --host localhost --port 5000
-```
-
-### Dosya Hash Uyuşmazlığı
-```bash
-# Sorun: Dosya transfer sırasında bozuldu
-# Çözüm: Retransmission limit artır veya timeout değer değiştir
-```
-
----
-
-## 📖 Kaynaklar
-
-- RFC 768 - User Datagram Protocol (UDP)
-- Kurose & Ross - "Computer Networking" 
-- Python socket documentation
-- TCP/IP Protocols Implementation
-
----
-
-## 📞 İletişim
-
-- **GitHub:** https://github.com/fatihgoral/netprobe
-- **E-mail:** (İletişim email)
-- **Proje Dönem:** 2026 Bahar
-
----
-
-## 📄 Lisans
-
-Bu proje Bursa Teknik Üniversitesi Bilgisayar Ağları dersi kapsamında geliştirilmiştir.
-
----
-
-**Son Güncelleme:** 26 Mayıs 2026  
-**Versiyon:** 1.0
-
----
+**Tarih:** Bahar 2026
