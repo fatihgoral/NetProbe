@@ -18,7 +18,6 @@ Bu projenin temel amacı yalnızca çalışan bir dosya aktarım sistemi gelişt
 ![Genel Performans Özeti](./RaporicinResimler/r1.png)
 
 
-
 ---
 
 # ✨ Temel Özellikler ve Güvenilirlik Mekanizmaları
