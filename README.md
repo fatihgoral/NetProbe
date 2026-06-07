@@ -15,7 +15,8 @@ NetProbe, UDP üzerinde **stop-and-wait** yaklaşımı temelli güvenilir dosya 
 
 Bu projenin temel amacı yalnızca çalışan bir dosya aktarım sistemi geliştirmek değil, aynı zamanda geliştirilen güvenilirlik mekanizmasının farklı ağ koşulları altındaki davranışını sayısal verilerle analiz etmektir. Paket boyutu, timeout süresi, kayıp oranı ve dosya boyutu gibi parametrelerin performans üzerindeki etkileri deneysel olarak incelenmiştir.
 
-![Genel Performans Özeti](./reports/graphics/summary_performance_metrics.png)
+![Genel Performans Özeti](./RaporicinResimler/r1.png)
+
 
 
 ---
@@ -82,7 +83,8 @@ NetProbe sistemi farklı ağ koşullarını test eden deney senaryoları içerme
 
 Farklı paket boyutlarının sistem performansına etkisi incelenmiştir.
 
-![Paket Boyutu Performans Grafiği](reports/graphics/scenario1_packet_size_effects.png)
+![Paket Boyutu Performans Grafiği](./RaporicinResimler/r2.png)
+
 
 ### Bulgular
 
@@ -97,7 +99,8 @@ Farklı paket boyutlarının sistem performansına etkisi incelenmiştir.
 
 Timeout süresinin performans üzerindeki etkisi ölçülmüştür.
 
-![Timeout Performans Grafiği](reports/graphics/scenario2_timeout_effects.png)
+![Timeout Performans Grafiği](./RaporicinResimler/r3.png)
+
 
 ### Bulgular
 
@@ -112,7 +115,7 @@ Timeout süresinin performans üzerindeki etkisi ölçülmüştür.
 
 ACK paketleri düşürülerek yapay paket kaybı oluşturulmuştur.
 
-![Paket Kaybı Performans Grafiği](reports/graphics/scenario3_loss_rate_effects.png)
+![Paket Kaybı Performans Grafiği](./RaporicinResimler/r4.png)
 
 ### Bulgular
 
@@ -127,8 +130,7 @@ ACK paketleri düşürülerek yapay paket kaybı oluşturulmuştur.
 
 Farklı dosya boyutlarının sistem davranışına etkisi incelenmiştir.
 
-![Dosya Boyutu Ölçeklenebilirlik Grafiği](reports/graphics/scenario4_file_size_effects.png)
-
+![Dosya Boyutu Ölçeklenebilirlik Grafiği](./RaporicinResimler/r5.png)
 ### Bulgular
 
 * Tamamlanma süresi dosya boyutuyla neredeyse doğrusal şekilde artmıştır.
