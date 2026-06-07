@@ -20,7 +20,7 @@ try:
     HAS_MATPLOTLIB = True
 except ImportError:
     HAS_MATPLOTLIB = False
-    print("⚠ matplotlib veya numpy yüklü değil!")
+    print("[WARN] matplotlib veya numpy yüklü değil!")
     print("  Kurulum: pip install matplotlib numpy")
 
 
@@ -97,7 +97,7 @@ def plot_scenario1(data_dir: str = "data", output_dir: str = "reports"):
     """Senaryo 1: Paket Boyutu vs Throughput/Goodput/Completion Time"""
     filepath = Path(data_dir) / "scenario1_results.csv"
     if not filepath.exists():
-        print(f"⚠ Senaryo 1 verisi bulunamadı, atlanıyor.")
+        print(f"[WARN] Senaryo 1 verisi bulunamadı, atlanıyor.")
         return
     
     rows = read_csv(str(filepath))
@@ -163,14 +163,14 @@ def plot_scenario1(data_dir: str = "data", output_dir: str = "reports"):
     output_path = Path(output_dir) / "scenario1_paket_boyutu.png"
     plt.savefig(output_path)
     plt.close()
-    print(f"✓ Grafik kaydedildi: {output_path}")
+    print(f"[OK] Grafik kaydedildi: {output_path}")
 
 
 def plot_scenario2(data_dir: str = "data", output_dir: str = "reports"):
     """Senaryo 2: Timeout vs Retransmission Rate / Completion Time"""
     filepath = Path(data_dir) / "scenario2_results.csv"
     if not filepath.exists():
-        print(f"⚠ Senaryo 2 verisi bulunamadı, atlanıyor.")
+        print(f"[WARN] Senaryo 2 verisi bulunamadı, atlanıyor.")
         return
     
     rows = read_csv(str(filepath))
@@ -228,14 +228,14 @@ def plot_scenario2(data_dir: str = "data", output_dir: str = "reports"):
     output_path = Path(output_dir) / "scenario2_timeout.png"
     plt.savefig(output_path)
     plt.close()
-    print(f"✓ Grafik kaydedildi: {output_path}")
+    print(f"[OK] Grafik kaydedildi: {output_path}")
 
 
 def plot_scenario3(data_dir: str = "data", output_dir: str = "reports"):
     """Senaryo 3: Loss Rate vs Goodput / Completion Time / Retransmission"""
     filepath = Path(data_dir) / "scenario3_results.csv"
     if not filepath.exists():
-        print(f"⚠ Senaryo 3 verisi bulunamadı, atlanıyor.")
+        print(f"[WARN] Senaryo 3 verisi bulunamadı, atlanıyor.")
         return
     
     rows = read_csv(str(filepath))
@@ -305,14 +305,14 @@ def plot_scenario3(data_dir: str = "data", output_dir: str = "reports"):
     output_path = Path(output_dir) / "scenario3_paket_kaybi.png"
     plt.savefig(output_path)
     plt.close()
-    print(f"✓ Grafik kaydedildi: {output_path}")
+    print(f"[OK] Grafik kaydedildi: {output_path}")
 
 
 def plot_scenario4(data_dir: str = "data", output_dir: str = "reports"):
     """Senaryo 4: Dosya Boyutu vs Completion Time / Throughput"""
     filepath = Path(data_dir) / "scenario4_results.csv"
     if not filepath.exists():
-        print(f"⚠ Senaryo 4 verisi bulunamadı, atlanıyor.")
+        print(f"[WARN] Senaryo 4 verisi bulunamadı, atlanıyor.")
         return
     
     rows = read_csv(str(filepath))
@@ -382,7 +382,7 @@ def plot_scenario4(data_dir: str = "data", output_dir: str = "reports"):
     output_path = Path(output_dir) / "scenario4_dosya_boyutu.png"
     plt.savefig(output_path)
     plt.close()
-    print(f"✓ Grafik kaydedildi: {output_path}")
+    print(f"[OK] Grafik kaydedildi: {output_path}")
 
 
 def plot_summary_dashboard(data_dir: str = "data", output_dir: str = "reports"):
@@ -505,7 +505,7 @@ def plot_summary_dashboard(data_dir: str = "data", output_dir: str = "reports"):
     output_path = Path(output_dir) / "netprobe_dashboard.png"
     plt.savefig(output_path, dpi=150)
     plt.close()
-    print(f"✓ Dashboard kaydedildi: {output_path}")
+    print(f"[OK] Dashboard kaydedildi: {output_path}")
 
 
 def main():
@@ -531,7 +531,7 @@ def main():
     plot_scenario4(data_dir, output_dir)
     plot_summary_dashboard(data_dir, output_dir)
     
-    print(f"\n✓ Tüm grafikler {output_dir}/ klasörüne kaydedildi!")
+    print(f"\n[OK] Tüm grafikler {output_dir}/ klasörüne kaydedildi!")
     print("  - scenario1_paket_boyutu.png")
     print("  - scenario2_timeout.png")
     print("  - scenario3_paket_kaybi.png")
