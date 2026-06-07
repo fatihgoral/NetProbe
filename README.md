@@ -184,7 +184,7 @@ python experiments/scenario3_loss.py
 python experiments/scenario4_filesize.py
 ```
 
-Sonuçlar `data/` klasörüne CSV olarak kaydedilir ve grafikler `reports/graphics/` klasöründe oluşturulur.
+Sonuçlar `data/` klasörüne CSV olarak kaydedilir ve grafikler `reports/graphics/` klasöründe oluşturulur .
 
 ---
 
