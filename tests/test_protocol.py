@@ -93,7 +93,7 @@ def test_start_packet():
     print("=" * 50)
     
     file_hash = b"0" * 32  # 32 bytes SHA-256
-    start_pkt = StartPacket(total_packets=100, file_hash=file_hash)
+    start_pkt = StartPacket(total_packets=100, flags=3, file_hash=file_hash)
     
     print(f"Orijinal START: {start_pkt}")
     
@@ -106,6 +106,7 @@ def test_start_packet():
     print(f"Deserileştirilmiş START: {deserialized}")
     
     assert deserialized.total_packets == start_pkt.total_packets, "Total packets uyuşmazlığı"
+    assert deserialized.flags == start_pkt.flags, "Flags uyuşmazlığı"
     assert deserialized.file_hash == file_hash, "File hash uyuşmazlığı"
     
     print("✓ StartPacket serileştirme: BAŞARILI\n")

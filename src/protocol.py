@@ -263,32 +263,34 @@ class StartPacket:
     """Başlama Paketi (dosya bilgileri)"""
     packet_type: int = PacketType.START
     total_packets: int = 0
+    flags: int = 0  # Bit 0: Compress, Bit 1: Encrypt
     file_hash: bytes = b''  # SHA-256 hash (32 bytes)
     
     def serialize(self) -> bytes:
         """Başlama paketini bayt formatına dönüştür"""
-        packet = struct.pack('!BI', self.packet_type, self.total_packets)
+        packet = struct.pack('!BIB', self.packet_type, self.total_packets, self.flags)
         packet += self.file_hash
-        checksum = calculate_checksum(self.file_hash)
+        checksum = calculate_checksum(self.file_hash + bytes([self.flags]))
         packet += checksum
         return packet
     
     @staticmethod
     def deserialize(data: bytes) -> 'StartPacket':
         """Başlama paketini aç"""
-        if len(data) < 13:
+        if len(data) < 14:
             raise ValueError("START paketi çok kısa")
         
-        packet_type, total_packets = struct.unpack('!BI', data[:5])
-        file_hash = data[5:37]
-        checksum = data[37:45]
+        packet_type, total_packets, flags = struct.unpack('!BIB', data[:6])
+        file_hash = data[6:38]
+        checksum = data[38:46]
         
-        if not verify_checksum(file_hash, checksum):
+        if not verify_checksum(file_hash + bytes([flags]), checksum):
             raise ValueError("START paketi checksum hatası")
         
         return StartPacket(
             packet_type=packet_type,
             total_packets=total_packets,
+            flags=flags,
             file_hash=file_hash
         )
 

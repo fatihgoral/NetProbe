@@ -10,6 +10,7 @@ import argparse
 import threading
 import os
 import hashlib
+import zlib
 from pathlib import Path
 from typing import Dict, Set
 
@@ -31,6 +32,8 @@ class ClientSession:
         self.received_packets: Dict[int, bytes] = {}
         self.total_expected_packets = 0
         self.file_hash = b""
+        self.compress = False
+        self.encrypt = False
         self.output_file = None
         self.metrics = MetricsCalculator()
 
@@ -116,6 +119,8 @@ class NetProbeServer:
         start_pkt = StartPacket.deserialize(data)
         session.total_expected_packets = start_pkt.total_packets
         session.file_hash = start_pkt.file_hash
+        session.compress = bool(start_pkt.flags & 1)
+        session.encrypt = bool(start_pkt.flags & 2)
         session.expected_seq = 0
         session.received_packets.clear()
         
@@ -179,9 +184,29 @@ class NetProbeServer:
     def _save_file(self, session: ClientSession):
         """Alınan paketleri dosyaya kaydet"""
         try:
+            # Tüm payload'ı birleştir
+            full_data = bytearray()
+            for i in range(session.total_expected_packets):
+                full_data.extend(session.received_packets[i])
+            
+            # Şifre çözme (XOR)
+            if session.encrypt:
+                key = b"NETPROBE_SECRET_KEY"
+                decrypted = bytearray(len(full_data))
+                for i in range(len(full_data)):
+                    decrypted[i] = full_data[i] ^ key[i % len(key)]
+                full_data = decrypted
+            
+            # Dekompresyon (zlib)
+            if session.compress:
+                try:
+                    full_data = zlib.decompress(full_data)
+                except zlib.error as e:
+                    print(f"[ERR] Dekompresyon hatası: {e}")
+                    return
+            
             with open(session.output_file, 'wb') as f:
-                for i in range(session.total_expected_packets):
-                    f.write(session.received_packets[i])
+                f.write(full_data)
                     
             print(f"[OK] Dosya kaydedildi: {session.output_file}")
             
