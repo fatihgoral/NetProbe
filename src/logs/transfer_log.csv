@@ -1,0 +1,2 @@
+Timestamp,Event_Type,SeqNum,Retries,Status,Details
+2026-06-08T13:25:53.482,START,-1,0,OK,Sunucu açýldý: 0.0.0.0:5000
